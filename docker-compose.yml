@@ -1,0 +1,26 @@
+version: '1'
+services:
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: webapp_dev
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  web:
+    build: . #look for Dockerfile in current directory local machine
+    depends_on:
+      - postgres
+    ports:
+      - 6000:6000 #docker port: local server port
+      - 9229:9229 #vs code debugger
+    volumes:
+      - ./:/usr/src/app #changes storing as cache /usr/src/app
+      - /use/src/app/mode_modules #separating node modules of container and local machine
+    command: yarn dev
+    environment:
+      DATABASE_URL: postgres://postgres@postgres/webapp_dev
+      #type://username@host/db_name
+      PORT: 6000
